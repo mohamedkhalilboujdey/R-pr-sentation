@@ -1,0 +1,241 @@
+---
+title: "Statistical Analysis: Student Mental Health"
+subtitle: "Factors Influencing Depression and Anxiety"
+date: '2025-11-16'
+format: 
+  revealjs:
+    scrollable: true
+    footer: '<a href="https://nevermind78.github.io/capstone_R/" style="position: fixed; bottom: 10px; right: 10px; z-index: 1000;"><svg width="24" height="24" viewBox="0 0 24 24" fill="#0366d6"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></a>'
+webr:
+  packages: ['ggplot2', 'dplyr', 'effsize']
+filters:
+  - webr
+css: styles.css
+---
+
+## Introduction
+
+**Context**
+
+We apply classical statistical tests to the *Student Mental Health* dataset to identify significant factors influencing depression.
+
+**Tests Covered:**
+
+1.  **One-Sample t-Test:** Is the average student Age significantly different from 20?
+   
+2.  **Two-Sample t-Test:** Does Age differ between students with and without Depression?
+   
+3.  **Wilcoxon Test:** A robust comparison of Age vs Anxiety.
+ 
+4.  **Fisher's Exact Test/ Chi-Square:** Is there an association between Gender and Depression?
+
+---
+
+## Data Loading
+
+We load the dataset directly from the repository.
+```{webr-r}
+# Loading libraries
+
+library("ggplot2")
+library("dplyr")
+
+# Load Data
+url_raw <- "https://raw.githubusercontent.com/mohamedkhalilboujdey/Projet_R/main/mental_health.csv.csv"
+
+
+
+df <- read.csv(url_raw)
+
+# Data Cleaning
+# Remove rows with missing values
+df <- na.omit(df)
+
+# Preview
+head(df)
+head(df[, c("Age", "Gender", "Depression")], 3)
+```
+
+
+---
+
+## 1. One-Sample t-Test
+
+**Question:**  Is the student population significantly different from a typical reference age of 20?
+
+$H_0$: Mean Age = 20
+
+$H_A$: Mean Age $\neq$ 20
+
+```{webr-r}
+# One Sample t-test
+# We compare the 'Age' column to the theoretical value of 20
+t.test(df$Age, mu = 20)
+```
+
+---
+
+## 2. Two-Sample t-Test
+
+**Concept:**The two sample t-Test is used to compare the means of two independent groups.
+**Application:**Is the mean Age different for students with Depression vs No Depression?
+
+$H_0$: Mean Age (Depressed) = Mean Age (Not Depressed)
+
+$H_A$: Mean Age is different.
+
+```{webr-r}
+# Prepare the data vectors
+age_depressed <- df$Age[df$Depression == "Yes"]
+age_healthy   <- df$Age[df$Depression == "No"]
+
+# Welch Two Sample t-test (default in R)
+t.test(age_depressed, age_healthy)
+```
+
+
+
+---
+
+Classically, one might check if variances are equal before choosing the specific t-test flavor.
+
+```{webr-r}
+# F-test to compare variances
+var.test(age_depressed, age_healthy)                   
+```
+
+If p > 0.05, variances are statistically equal.
+```{webr-r}
+# t-test assuming equal variance
+t.test(age_depressed, age_healthy, var.equal = TRUE)
+```
+
+---
+
+**Visualizing the difference:** Create a boxplot to visualize the Age distribution for both groups.
+
+```{webr-r}
+boxplot(Age ~ Depression, data = df, 
+        main = "Age Distribution by Depression Status", 
+        col = c("lightblue", "salmon"),
+        ylab = "Age", xlab = "Depression")
+```
+
+---
+
+## 3. Wilcoxon Test (Non-parametric)
+
+If we suspect the Age distribution is not normal (e.g., skewed by older students), the Wilcoxon Rank Sum Test (Mann-Whitney U) is safer.
+**Question:**Is the distribution of Age different for students with Anxiety?
+
+```{webr-r}
+# Extract data for Anxiety groups
+age_anxiety_yes <- df$Age[df$Anxiety == "Yes"]
+age_anxiety_no  <- df$Age[df$Anxiety == "No"]
+
+# Wilcoxon test
+wilcox.test(age_anxiety_yes, age_anxiety_no)
+```
+
+---
+
+## 4. Categorical Association (Chi-Square)
+
+**Question:** Is there a significant association between Gender and Depression?
+
+$H_0$: Gender and Depression are independent.
+
+$H_A$: Gender and Depression are associated.
+
+We use a Contingency Table:
+
+```{webr-r}
+# Create contingency table
+table_gender_dep <- table(df$Gender, df$Depression)
+print(table_gender_dep)
+```
+
+
+---
+
+**Fisher's Exact Test & Chi-Square**
+
+For smaller sample sizes, Fisher's test is more precise. For general purposes, Chi-square is used.
+
+```{webr-r}
+# Fisher's Exact Test
+fisher.test(table_gender_dep)
+```
+
+```{webr-r}
+# Chi-squared Test
+chisq.test(table_gender_dep)
+```
+
+---
+
+## Project: Anxiety Analysis
+
+**Task:** Perform a complete analysis on the Anxiety factor.
+
+1. Visualize the relationship between CGPA and Anxiety.
+
+2. Test if Marital Status is associated with Anxiety.
+
+Think about which test is appropriate (Categorical vs Categorical).
+
+---
+
+### Project Solution: CGPA vs Anxiety
+
+Since both variables are categorical (CGPA is ranges, Anxiety is Yes/No), we use a bar plot and a Chi-square test.
+
+```{webr-r}
+# 1. Visualization
+ggplot(df, aes(x = CGPA, fill = Anxiety)) +
+  geom_bar(position = "fill") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(y = "Proportion", title = "Anxiety Prevalence by CGPA")
+```
+
+---
+
+### Project Solution: Marital Status vs Anxiety
+
+```{webr-r}
+# 2. Statistical Test
+table_marital_anx <- table(df$Marital_status, df$Anxiety)
+print(table_marital_anx)
+
+# We use Fisher's test because some counts (e.g., married students) might be low
+fisher.test(table_marital_anx)
+```
+
+ If p < 0.05, there is a significant association between marital status and anxiety.
+
+
+---
+
+## Summary of Findings
+
+```{webr-r}
+# Rapid Summary Statistics
+cat("Dataset Size:", nrow(df), "students\n")
+cat("Depression Rate:", round(mean(df$Depression == "Yes") * 100, 1), "%\n")
+cat("Anxiety Rate:", round(mean(df$Anxiety == "Yes") * 100, 1), "%\n")
+```
+
+### Conclusion:
+
+By using t-tests for continuous variables (Age) and Chi-square/Fisher tests for categorical variables (Gender, Marital Status), we can statistically determine risk factors in the student population.
+
+---
+
+
+## References
+
+
+
+- Student (1908) - The probable error of a mean
+- Fisher, R.A. (1922) - On the interpretation of $\chi^2$ from contingency tables
+

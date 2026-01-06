@@ -1,0 +1,217 @@
+---
+title: "Statistical Analysis: Student Mental Health"
+date: '2025-12-31'
+format:
+  html:
+    theme: cosmo
+    toc: true
+---
+
+```{r }
+knitr::opts_chunk$set(echo = TRUE,warning = FALSE, message = FALSE)
+library("gplots")
+library("dplyr")
+library("ggplot2")
+```
+
+# Introduction
+
+The aim of this exercise is to demonstrate the estimation and interpretation of confidence intervals and to compare two statistical groups.
+
+The experimental hypothesis is that Depression in students might be linked to their Age. We will compare whether the mean age differs between students who are depressed and those who are not.
+
+
+We posit the following statistical hypotheses  : **regarding variance:**
+
+* $H_0$: The variance is the same in both groups.
+* $H_a$: The variances are different.
+
+**and regarding the mean :**
+
+* $H_0$: The mean age is the same for both groups.
+* $H_a$: The mean age is different between depressed and non-depressed students.
+
+# Material and Methods
+
+The dataset contains data on university students. The analysis focuses on Age and Depression status.
+
+The statistical analysis is performed using the **R** [@RCore].
+
+```{r packages, eval=FALSE}
+library("gplots")  # contains barplot2 with error bars
+library("dplyr")   # for pipelines, group_by and summarize
+library("ggplot2") # modern plotting package "grammar of graphics"
+```
+
+
+# Data Analysis
+
+## Prepare and inspect data
+
+* We load the data file.
+
+
+
+```{r }
+url_raw <- "https://raw.githubusercontent.com/mohamedkhalilboujdey/Projet_R/main/mental_health.csv.csv"
+df <- read.csv(url_raw)
+df <- na.omit(df)
+```
+
+```{r }
+#  ... do it
+```
+
+* Nous vérifions les données :
+
+```{r }
+head(df)
+```
+
+* Separating the table into two groups (Depression: YES vs NO).
+
+```{r }
+box1 <- subset(df, Depression == "No")
+box2 <- subset(df, Depression == "Yes")
+```
+
+* Graphical comparison of Age for both groups:
+
+```{r }
+boxplot(box1$Age, box2$Age, names=c("No Depression", "Yes Depression"),
+        col=c("lightgreen", "salmon"),
+        ylab="Age (Years)",
+        main="Age Distribution by Depression Status")
+```
+
+
+
+```{r, eval=FALSE}
+boxplot(Age ~ Depression, data = df)
+
+```
+
+
+
+## Check distribution
+
+Let's check the shape of the age distribution for the "No Depression" group.
+
+```{r }
+hist(box1$Age, main="Age Histogram (No Depression)", xlab="Age", col="lightblue")
+```
+
+## Sample statistics
+
+We will estimate a prediction interval. In which age range do 95% of non-depressed students fall?
+
+First, we calculate the mean, standard deviation (sd), N, and standard error (se) for the "box1" dataset (No Depression):
+```{r }
+box1.mean <- mean(box1$Age)
+box1.sd   <- sd(box1$Age)
+box1.N    <- length(box1$Age)
+box1.se   <- box1.sd/sqrt(box1.N)
+```
+
+Next, we estimate the 95% prediction interval (assuming a normal distribution):
+
+```{r }
+box1.95 <- box1.mean + c(-1.96, 1.96) * box1.sd
+box1.95
+```
+
+If the dataset is large enough, we can compare this with the empirical quantiles:
+
+```{r }
+quantile(box1$Age, p = c(0.025, 0.975))
+```
+
+Let's visualize this interval on the histogram:
+
+```{r }
+hist(box1$Age, main="Prediction Interval (Age)", xlab="Age", col="lightblue")
+abline(v = box1.95, col="red", lwd=2)
+rug(box1$Age, col="blue")
+```
+
+
+## Confidence interval of the mean
+
+The**confidence interval** of the mean tells us the precision of the estimated mean age.
+
+### Confidence interval of the mean for the "box1" data
+
+* Let's calculate the confidence interval for the "No Depression" group:
+
+
+```{r }
+box1.ci <- box1.mean + qt(p = c(0.025, 0.975), df = box1.N-1) * box1.se
+box1.ci
+```
+
+
+
+
+# Compare samples with F- and t-Test
+
+**Null Hypothesis:** Both groups have the same mean age.
+
+**Alternative:** The mean age differs depending on depression status.
+
+```{r }
+t.test(Age ~ Depression, data = df)
+```
+
+We also perform the F-test to compare variances:
+```{r }
+var.test(Age ~ Depression, data = df)
+```
+
+**Interprétation :** Look at the p-value of the t-test.
+* If p-value < 0.05: There is a significant difference in age.
+
+* If p-value > 0.05: Age does not significantly influence depression in this sample.
+
+# Summary statistics and CI with **tidyverse**
+
+Here is a modern method to summarize statistics using dplyr.
+
+## Calculation of summary statistics 
+
+
+
+```{r }
+library("dplyr")
+
+stats <-
+  df |>
+    group_by(Depression) |>
+    summarize(mean = mean(Age), sd=sd(Age), N=length(Age), se=sd/sqrt(N),
+              lwr = mean + qt(p = 0.025, df = N-1) * se,
+              upr = mean + qt(p = 0.975, df = N-1) * se
+             )
+
+stats
+```
+
+## Barchart and errorbars with **ggplot2**
+
+We use the statistics table to create a bar chart with confidence intervals.
+```{r }
+library("ggplot2")
+stats |>
+  ggplot(aes(x=Depression, y=mean, fill=Depression, min=lwr, max=upr))  +
+    geom_col() + 
+    geom_errorbar(width=0.2) +
+    labs(title="Mean Age by Depression Status", y="Mean Age")
+``` 
+
+## Additional tasks
+
+Repeat the analysis with other properties of the fruits, e.g. width and height. 
+Create box plots, analyse distribution, create bar charts.
+
+
+# References
+
+R Core Team (2023). R: A language and environment for statistical computing.
