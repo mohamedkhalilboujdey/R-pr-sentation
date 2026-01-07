@@ -67,11 +67,26 @@ $H_0$: Mean Age = 20
 
 $H_A$: Mean Age $\neq$ 20
 
+**Visualizing the Distribution:** Before testing, let's look at the age distribution.
+
+```{webr-r}
+# Histogram with mean line
+ggplot(df, aes(x = Age)) + 
+  geom_histogram(binwidth = 1, fill = "#69b3a2", color = "white", alpha=0.7) +
+  geom_vline(aes(xintercept = mean(Age)), color="red", linetype="dashed", size=1) +
+  geom_vline(aes(xintercept = 20), color="blue", size=1) +
+  labs(title = "Age Distribution vs Reference (Blue=20)", x = "Age", y = "Count") +
+  theme_minimal()
+```
+
+
 ```{webr-r}
 # One Sample t-test
 # We compare the 'Age' column to the theoretical value of 20
 t.test(df$Age, mu = 20)
 ```
+
+If p < 0.05, the red dashed line (our mean) is significantly far from the blue line (20).
 
 ---
 
@@ -115,10 +130,13 @@ t.test(age_depressed, age_healthy, var.equal = TRUE)
 **Visualizing the difference:** Create a boxplot to visualize the Age distribution for both groups.
 
 ```{webr-r}
-boxplot(Age ~ Depression, data = df, 
-        main = "Age Distribution by Depression Status", 
-        col = c("lightblue", "salmon"),
-        ylab = "Age", xlab = "Depression")
+# Enhanced Boxplot with Jitter points to see data density
+ggplot(df, aes(x = Depression, y = Age, fill = Depression)) +
+  geom_boxplot(alpha = 0.6) +
+  geom_jitter(width = 0.2, alpha = 0.3) + 
+  scale_fill_manual(values = c("#999999", "#E69F00")) +
+  labs(title = "Age Distribution by Depression Status", subtitle = "Visualizing Median and Spread") +
+  theme_minimal()
 ```
 
 ---
@@ -137,6 +155,15 @@ age_anxiety_no  <- df$Age[df$Anxiety == "No"]
 wilcox.test(age_anxiety_yes, age_anxiety_no)
 ```
 
+Instead of just means, let's compare the shape of age distributions for Anxiety groups.
+
+```{webr-r}
+# Density Plot
+ggplot(df, aes(x = Age, fill = Anxiety)) +
+  geom_density(alpha = 0.5) +
+  labs(title = "Age Density by Anxiety Status", y = "Density") +
+  theme_classic()
+```
 ---
 
 ## 4. Categorical Association (Chi-Square)
@@ -146,6 +173,16 @@ wilcox.test(age_anxiety_yes, age_anxiety_no)
 $H_0$: Gender and Depression are independent.
 
 $H_A$: Gender and Depression are associated.
+
+**Visualizing Contingency (Bar Plot):**
+```{webr-r}
+# Stacked Bar Chart (Proportions)
+ggplot(df, aes(x = Gender, fill = Depression)) +
+  geom_bar(position = "fill") +
+  scale_fill_brewer(palette = "Set1") +
+  labs(y = "Proportion", title = "Depression Proportion by Gender") +
+  theme_minimal()
+```
 
 We use a Contingency Table:
 
@@ -191,16 +228,35 @@ Think about which test is appropriate (Categorical vs Categorical).
 Since both variables are categorical (CGPA is ranges, Anxiety is Yes/No), we use a bar plot and a Chi-square test.
 
 ```{webr-r}
-# 1. Visualization
+# 1. Improved Visualization with ordered labels if possible
 ggplot(df, aes(x = CGPA, fill = Anxiety)) +
-  geom_bar(position = "fill") +
+  geom_bar(position = "dodge") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  labs(y = "Proportion", title = "Anxiety Prevalence by CGPA")
+  labs(y = "Count", title = "Anxiety Count by CGPA") +
+  scale_fill_manual(values = c("lightblue", "salmon"))
+```
+
+**Statistical Test:**
+
+```{webr-r}
+chisq.test(table(df$CGPA, df$Anxiety))
 ```
 
 ---
 
 ### Project Solution: Marital Status vs Anxiety
+
+**Visualization:**
+
+```{webr-r}
+# Mosaic Plot equivalent using simple bar for clarity
+ggplot(df, aes(x = Marital_status, fill = Anxiety)) +
+  geom_bar() +
+  labs(title = "Anxiety by Marital Status") +
+  theme_minimal()
+```
+
+**Statistical Test:**
 
 ```{webr-r}
 # 2. Statistical Test
@@ -217,6 +273,21 @@ fisher.test(table_marital_anx)
 ---
 
 ## Summary of Findings
+```{webr-r}
+# Summary Dataframe for visualization
+summary_stats <- data.frame(
+  Condition = c("Depression", "Anxiety"),
+  Rate = c(mean(df$Depression == "Yes"), mean(df$Anxiety == "Yes"))
+)
+
+# Simple Summary Plot
+ggplot(summary_stats, aes(x = Condition, y = Rate, fill = Condition)) +
+  geom_col(width = 0.5) +
+  ylim(0, 1) +
+  geom_text(aes(label = scales::percent(Rate)), vjust = -0.5) +
+  labs(title = "Overall Prevalence in Dataset") +
+  theme_void()
+```
 
 ```{webr-r}
 # Rapid Summary Statistics

@@ -609,7 +609,7 @@
     "href": "qmd/06-classical-tests.html#one-sample-t-test",
     "title": "Statistical Analysis: Student Mental Health",
     "section": "1. One-Sample t-Test",
-    "text": "1. One-Sample t-Test\nQuestion: Is the student population significantly different from a typical reference age of 20?\n\\(H_0\\): Mean Age = 20\n\\(H_A\\): Mean Age \\(\\neq\\) 20\n\nPlease enable JavaScript to experience the dynamic code cell content on this page.",
+    "text": "1. One-Sample t-Test\nQuestion: Is the student population significantly different from a typical reference age of 20?\n\\(H_0\\): Mean Age = 20\n\\(H_A\\): Mean Age \\(\\neq\\) 20\nVisualizing the Distribution: Before testing, let’s look at the age distribution.\n\nPlease enable JavaScript to experience the dynamic code cell content on this page.\n\nPlease enable JavaScript to experience the dynamic code cell content on this page.\nIf p &lt; 0.05, the red dashed line (our mean) is significantly far from the blue line (20).",
     "crumbs": [
       "Presentations",
       "Statistical Analysis: Student Mental Health"
@@ -631,7 +631,7 @@
     "href": "qmd/06-classical-tests.html#wilcoxon-test-non-parametric",
     "title": "Statistical Analysis: Student Mental Health",
     "section": "3. Wilcoxon Test (Non-parametric)",
-    "text": "3. Wilcoxon Test (Non-parametric)\nIf we suspect the Age distribution is not normal (e.g., skewed by older students), the Wilcoxon Rank Sum Test (Mann-Whitney U) is safer. Question:Is the distribution of Age different for students with Anxiety?\n\nPlease enable JavaScript to experience the dynamic code cell content on this page.",
+    "text": "3. Wilcoxon Test (Non-parametric)\nIf we suspect the Age distribution is not normal (e.g., skewed by older students), the Wilcoxon Rank Sum Test (Mann-Whitney U) is safer. Question:Is the distribution of Age different for students with Anxiety?\n\nPlease enable JavaScript to experience the dynamic code cell content on this page.\nInstead of just means, let’s compare the shape of age distributions for Anxiety groups.\n\nPlease enable JavaScript to experience the dynamic code cell content on this page.",
     "crumbs": [
       "Presentations",
       "Statistical Analysis: Student Mental Health"
@@ -642,7 +642,7 @@
     "href": "qmd/06-classical-tests.html#categorical-association-chi-square",
     "title": "Statistical Analysis: Student Mental Health",
     "section": "4. Categorical Association (Chi-Square)",
-    "text": "4. Categorical Association (Chi-Square)\nQuestion: Is there a significant association between Gender and Depression?\n\\(H_0\\): Gender and Depression are independent.\n\\(H_A\\): Gender and Depression are associated.\nWe use a Contingency Table:\n\nPlease enable JavaScript to experience the dynamic code cell content on this page.",
+    "text": "4. Categorical Association (Chi-Square)\nQuestion: Is there a significant association between Gender and Depression?\n\\(H_0\\): Gender and Depression are independent.\n\\(H_A\\): Gender and Depression are associated.\nVisualizing Contingency (Bar Plot):\n\nPlease enable JavaScript to experience the dynamic code cell content on this page.\nWe use a Contingency Table:\n\nPlease enable JavaScript to experience the dynamic code cell content on this page.",
     "crumbs": [
       "Presentations",
       "Statistical Analysis: Student Mental Health"
@@ -664,7 +664,7 @@
     "href": "qmd/06-classical-tests.html#summary-of-findings",
     "title": "Statistical Analysis: Student Mental Health",
     "section": "Summary of Findings",
-    "text": "Summary of Findings\n\nPlease enable JavaScript to experience the dynamic code cell content on this page.\nConclusion:\nBy using t-tests for continuous variables (Age) and Chi-square/Fisher tests for categorical variables (Gender, Marital Status), we can statistically determine risk factors in the student population.",
+    "text": "Summary of Findings\n\nPlease enable JavaScript to experience the dynamic code cell content on this page.\n\nPlease enable JavaScript to experience the dynamic code cell content on this page.\nConclusion:\nBy using t-tests for continuous variables (Age) and Chi-square/Fisher tests for categorical variables (Gender, Marital Status), we can statistically determine risk factors in the student population.",
     "crumbs": [
       "Presentations",
       "Statistical Analysis: Student Mental Health"
